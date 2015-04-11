@@ -42,9 +42,11 @@ var isSleep;
         //Vivoactive 205 x 148 
         dc.drawText((dc.getWidth()-60),(10), Gfx.FONT_NUMBER_HOT,timeString , Gfx.TEXT_JUSTIFY_CENTER);
         
-       if(isSleep == 0){ 
+        //Show battery info when Awake
+        if(isSleep == 0){ 
 	    	var stats = Sys.getSystemStats();
-	      	var battery = stats.battery;  	
+	      	var battery = stats.battery;
+	      	//Change color depending on charge	
 	      	if (battery >= 50){
 	      		dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_BLACK);
 	  		}
@@ -53,8 +55,13 @@ var isSleep;
 	      	}else{
 	      		dc.setColor(Gfx.COLOR_RED, Gfx.COLOR_BLACK);
 	  		}
-	  		
-	        dc.drawText((dc.getWidth()-70), dc.getHeight()-30, Gfx.FONT_MEDIUM,"BAT. " + battery.format("%4.2f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
+	  		//Large Battery Rectangle
+	  		dc.drawRectangle((dc.getWidth()-100), dc.getHeight()-30,90,29);
+	  		//Positive battery Terminal
+	  		dc.drawRectangle((dc.getWidth()-11),dc.getHeight()-20,5,10);
+	  		//Battery %
+	        //dc.drawText((dc.getWidth()-55), dc.getHeight()-30, Gfx.FONT_MEDIUM, "99.00%", Gfx.TEXT_JUSTIFY_CENTER);
+	        dc.drawText((dc.getWidth()-60), dc.getHeight()-30, Gfx.FONT_MEDIUM, battery.format("%4.2f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
     	}
     }
 
