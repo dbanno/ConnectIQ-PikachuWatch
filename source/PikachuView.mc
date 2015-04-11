@@ -27,7 +27,15 @@ var bkg;
         dc.clear();
 		dc.drawBitmap(1,1,bkg);
         var clockTime = Sys.getClockTime();
-        var timeString = Lang.format("$1$:$2$", [clockTime.hour, clockTime.min.format("%.2d")]);
+        var hour = clockTime.hour;
+        if (hour > 12)
+        {
+	        var deviceSettings = Sys.getDeviceSettings();
+	        if (!deviceSettings.is24Hour) {
+	        	hour = hour - 12;
+	        }
+        }
+        var timeString = Lang.format("$1$:$2$", [hour, clockTime.min.format("%.2d")]);
         
         dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_BLACK);
         //Vivoactive 205 x 148 clockTime.hour.toString()
