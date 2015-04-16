@@ -3,6 +3,7 @@
 <bitmaps>
     <bitmap id="LauncherIcon" filename="images/launcher_icon.png" />
     <bitmap	id="id_pika" filename="images/pika.png" />
+    <bitmap id="id_step" filename="images/footprints.png" />
  </bitmaps>
 
 </resources>
