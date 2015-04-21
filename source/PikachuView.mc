@@ -3,6 +3,7 @@ using Toybox.Graphics as Gfx;
 using Toybox.System as Sys;
 using Toybox.Lang as Lang;
 using Toybox.ActivityMonitor as Act;
+using Toybox.Time as Time;
 
 class PikachuView extends Ui.WatchFace {
 
@@ -31,22 +32,33 @@ var step;
         dc.clear();
 		dc.drawBitmap(1,1,bkg);
         var clockTime = Sys.getClockTime();
+        var screenY = dc.getHeight();
+        var screenX = dc.getWidth();
         
         var hour = clockTime.hour;
         //12-hour support
-        if (hour > 12)
+        if (hour > 12 || hour == 0)
         {
 	        var deviceSettings = Sys.getDeviceSettings();
 	        if (!deviceSettings.is24Hour) {
-	        	hour = hour - 12;
+	        	if (hour == 0) {
+	        		hour = 12;
+	        	}
+	        	else {
+	        		hour = hour - 12;
+	        	}
 	        }
         }
-        var timeString = Lang.format("$1$:$2$", [hour, clockTime.min.format("%.2d")]);
+        var minute = clockTime.min.toString();
+        if (minute.toNumber() < 10) {
+        	minute = "0" + minute;
+        }
+        var timeString = Lang.format("$1$:$2$", [hour, minute]);
         
         dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
         //Vivoactive 205 x 148 
 		//FONT_NUMBER_HOT - Can't use since it removes leading 0
-        dc.drawText((dc.getWidth()-60),(10), Gfx.FONT_LARGE,timeString , Gfx.TEXT_JUSTIFY_CENTER);
+        dc.drawText((screenX-60),(10), Gfx.FONT_NUMBER_HOT,timeString , Gfx.TEXT_JUSTIFY_CENTER);
         
         //Show battery info when Awake
         if(isSleep == 0){ 
@@ -62,28 +74,38 @@ var step;
 	      		dc.setColor(Gfx.COLOR_RED, Gfx.COLOR_TRANSPARENT);
 	  		}
 	  		//Large Battery Rectangle
-	  		dc.drawRectangle((dc.getWidth()-100), dc.getHeight()-30,90,29);
+	  		dc.drawRectangle((screenX-100), screenY-30,90,29);
 	  		//Positive battery Terminal
-	  		dc.drawRectangle((dc.getWidth()-11),dc.getHeight()-20,5,10);
+	  		dc.drawRectangle((screenX-11), screenY-20,5,10);
 	  		//Battery %
-	        //dc.drawText((dc.getWidth()-55), dc.getHeight()-30, Gfx.FONT_MEDIUM, "99.00%", Gfx.TEXT_JUSTIFY_CENTER);
-	        dc.drawText((dc.getWidth()-60), dc.getHeight()-30, Gfx.FONT_MEDIUM, battery.format("%4.2f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
+	        dc.drawText((screenX-60), screenY-30, Gfx.FONT_MEDIUM, battery.format("%4.2f") + "%", Gfx.TEXT_JUSTIFY_CENTER);
+    	}
+    	else {
+    		var date = Time.Gregorian.info(Time.now(),0);
+    		var month = date.month;
+    		var day = date.day;
+    		dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
+    		dc.drawText((screenX-40), screenY-25, Gfx.FONT_MEDIUM, month + "/" + day, Gfx.TEXT_JUSTIFY_CENTER);
     	}
     	
     	//Show step information
 		dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
-		dc.drawBitmap(5,dc.getHeight()-20,step);
+		dc.drawBitmap(5,screenY-20,step);
 		
 		var activity = Act.getInfo();
-		if(updateCount == 2) { //When update count is 2 (every 2 minutes or 2 seconds when awake) switch values
-			dc.drawText(30, dc.getHeight()-25, Gfx.FONT_MEDIUM, activity.steps.toString(), Gfx.TEXT_JUSTIFY_LEFT);
+		if(updateCount == 2 && isSleep == 0) { //When update count is 2  switch values
+			dc.drawText(30, screenY-25, Gfx.FONT_MEDIUM, activity.steps.toString(), Gfx.TEXT_JUSTIFY_LEFT);
 			updateCount = 0;
 		}
 		else{
-			dc.drawText(30, dc.getHeight()-25, Gfx.FONT_MEDIUM, (((activity.steps.toFloat() / activity.stepGoal.toFloat())*100)).format("%4.2f") + "%", Gfx.TEXT_JUSTIFY_LEFT);
+			dc.drawText(30, screenY-25, Gfx.FONT_MEDIUM, (((activity.steps.toFloat() / activity.stepGoal.toFloat())*100)).format("%4.2f") + "%", Gfx.TEXT_JUSTIFY_LEFT);
 		}
 		
     	updateCount += 1;
+    	if (updateCount > 2)
+    	{
+    		updateCount = 0;
+    	}
     }
 
     //! The user has just looked at their watch. Timers and animations may be started here.
